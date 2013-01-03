@@ -16,23 +16,18 @@
  */
 package eu.scape_project.pt.metshadoop;
 
-import eu.scapeproject.model.IntellectualEntity;
-import eu.scapeproject.model.metadata.textmd.TextMDMetadata;
+import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.logging.Level;
 import javax.xml.bind.JAXBException;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DataOutputBuffer;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
@@ -300,10 +295,12 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         LOG.debug("out = " + new String(out));
         bais.reset();
         try {
-            //value.setObject(SCAPEMarshaller.getInstance().deserialize(DTO.type, bais));
-            value.setObject(
-                SCAPEMarshaller.getInstance()
-                    .getJaxbUnmarshaller().unmarshal(bais));
+            if( DTO.type.equals(MetsDocument.class) )
+                value.setObject(
+                    SCAPEMarshaller.getInstance()
+                        .getJaxbUnmarshaller().unmarshal(bais));
+            else
+                value.setObject(SCAPEMarshaller.getInstance().deserialize(DTO.type, bais));
 
         } catch (JAXBException e) {
             throw new IOException(e);

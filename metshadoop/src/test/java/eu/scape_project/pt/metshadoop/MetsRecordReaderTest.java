@@ -4,23 +4,19 @@
  */
 package eu.scape_project.pt.metshadoop;
 
-import eu.scape_project.pt.metshadoop.MetsRecordReader;
-import eu.scape_project.pt.metshadoop.DTO;
 import eu.scapeproject.dto.mets.MetsDocument;
+import eu.scapeproject.model.IntellectualEntity;
+import eu.scapeproject.model.metadata.dc.DCMetadata;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import junit.framework.TestCase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class MetsRecordReaderTest extends TestCase {
@@ -36,11 +32,21 @@ public class MetsRecordReaderTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        DTO.setType(IntellectualEntity.class);
+
+        System.out.println("DTO.type = " + DTO.type.getName());
+
         Configuration conf = new Configuration();
         conf.set(MetsRecordReader.TAG, "mets:mets");
         Path path = new Path("tmp" + System.currentTimeMillis() );
         FileSystem fs = path.getFileSystem(conf);
-        URL res = this.getClass().getClassLoader().getResource("entityList.xml");
+
+        String xmlFile = DTO.type.equals(MetsDocument.class) ?
+                    "metsdocs.xml" : 
+                    ( DTO.type.equals(IntellectualEntity.class) ? 
+                    "entities.xml" : null);
+
+        URL res = this.getClass().getClassLoader().getResource(xmlFile);
         fs.copyFromLocalFile(new Path(res.toURI()), path );
         FileStatus stat = fs.getFileStatus(path);
         genericSplit = new FileSplit(path, 0, stat.getLen(), null);
@@ -113,6 +119,22 @@ public class MetsRecordReaderTest extends TestCase {
                 assertEquals(doc.getStructMaps().get(0).getDivisions().get(0).getType(), value.getStructMaps().get(0).getDivisions().get(0).getType());
                 assertEquals(doc.getStructMaps().get(0).getDivisions().get(0).getOrder(), value.getStructMaps().get(0).getDivisions().get(0).getOrder());
             }
+        } else if (DTO.type.equals(IntellectualEntity.class)){
+            for( int i = 1; i <= 2; i++ ) {
+                instance.nextKeyValue();
+                InputStream in = this.getClass().getClassLoader()
+                        .getResourceAsStream("entity"+i+".xml");
+
+                IntellectualEntity entity = (IntellectualEntity) SCAPEMarshaller.getInstance().deserialize(IntellectualEntity.class, in);
+                IntellectualEntity value = (IntellectualEntity) instance.getCurrentValue().getObject();
+                assertEquals(entity.getIdentifier().getValue(), value.getIdentifier().getValue());
+                assertEquals(entity.getVersionNumber(), value.getVersionNumber());
+                assertEquals(((DCMetadata)entity.getDescriptive()).getDate(), ((DCMetadata)value.getDescriptive()).getDate());
+                assertEquals(((DCMetadata)entity.getDescriptive()).getTitle(), ((DCMetadata)value.getDescriptive()).getTitle());
+                assertEquals(((DCMetadata)entity.getDescriptive()).getLanguage(), ((DCMetadata)value.getDescriptive()).getLanguage());
+
+            }
+
         } else {
             fail("Current set DTO.type not testable");
         }
