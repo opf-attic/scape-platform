@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Receives a DTO and does something with it. Passes it on.
+ * 
  * @author Matthias Rella, DME-AIT
  */
 public class DummyJobMapper extends Mapper<Text, DTO, Text, DTO> {
@@ -24,6 +25,8 @@ public class DummyJobMapper extends Mapper<Text, DTO, Text, DTO> {
     public void map(Text key, DTO value, Context context)
             throws IOException, InterruptedException {
         LOG.debug( "DTO is landed: id = " + value.getIdentifier() );
+
+        context.write(key, value);
 
     }
     

@@ -32,12 +32,12 @@ public class MetsRecordReaderTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        DTO.setType(IntellectualEntity.class);
+        DTO.setType(MetsDocument.class);
 
         System.out.println("DTO.type = " + DTO.type.getName());
 
         Configuration conf = new Configuration();
-        conf.set(MetsRecordReader.TAG, "mets:mets");
+        conf.set(MetsInputFormat.TAG, "mets:mets");
         Path path = new Path("tmp" + System.currentTimeMillis() );
         FileSystem fs = path.getFileSystem(conf);
 
@@ -69,7 +69,8 @@ public class MetsRecordReaderTest extends TestCase {
     @Test
     public void testGetProgress() throws Exception {
         System.out.println("TEST: getProgress");
-        MetsRecordReader instance = new MetsRecordReader();
+        String tag = context.getConfiguration().get(MetsInputFormat.TAG);
+        MetsRecordReader instance = new MetsRecordReader(tag);
         instance.initialize(genericSplit, context);
         float expResult = 0.0F;
         instance.nextKeyValue();
@@ -94,7 +95,8 @@ public class MetsRecordReaderTest extends TestCase {
     @Test 
     public void testNextKeyValue() throws Exception {
         System.out.println("TEST: nextKeyValue");
-        MetsRecordReader instance = new MetsRecordReader();
+        String tag = context.getConfiguration().get(MetsInputFormat.TAG);
+        MetsRecordReader instance = new MetsRecordReader(tag);
         instance.initialize(genericSplit, context);
         if( DTO.type.equals(MetsDocument.class)) {
             for( int i = 1; i <= 2; i++ ) {

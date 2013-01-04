@@ -6,7 +6,7 @@
             <mets:xmlData>
                 <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dcMetadata" scape:identifier="4c6c6e88-7db8-4053-87ab-608d1ca66f0d">
                     <dc:date>2013-01-03 13:05:14.304</dc:date>
-                    <dc:title>A test entity</dc:title>
+                    <dc:title>Another test entity</dc:title>
                     <dc:language>en</dc:language>
                 </metadata>
             </mets:xmlData>

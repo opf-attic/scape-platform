@@ -16,18 +16,17 @@
  */
 package eu.scape_project.pt.metshadoop;
 
+import eu.scape_project.pt.metshadoop.utils.XmlFSUtil;
+import eu.scape_project.pt.metshadoop.utils.XmlUtil;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import javax.xml.bind.JAXBException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
@@ -45,19 +44,6 @@ import org.slf4j.LoggerFactory;
 public class MetsRecordReader extends RecordReader<Text, DTO> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetsRecordReader.class);
-    public static String ENCODING = "utf-8";
-    public static String TAG = "XmlStartTag";
-
-    /**
-     * XML Element tag to start reading record at
-     */
-    private byte[] startTag;
-
-    /**
-     * XML Element tag to end record at
-     */
-    private byte[] endTag;
-
     /**
      * Start position of InputSplit
      */
@@ -74,11 +60,6 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
     private FSDataInputStream fsin;
 
     /**
-     * Buffer to put record data to
-     */
-    private DataOutputBuffer buffer = new DataOutputBuffer();
-
-    /**
      * Value of the record
      */
     private DTO value;
@@ -89,24 +70,18 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
     private Text key;
 
     /**
-     * Raw Data for a record
+     * XmlUtil
      */
-    private byte[] rawData;
+    private XmlUtil xml;
 
     /**
-     * portion containing XML declaration
+     * Tag name of record element
      */
-    private byte[] decl;
+    private final String tag;
 
-    /**
-     * portion containing the root element tag
-     */
-    private byte[] root;
-
-    /**
-     * portion containing the attributes of the root element
-     */
-    private byte[] rootAttr;
+    public MetsRecordReader( String tag ) {
+        this.tag = tag;
+    }
 
     /**
      *
@@ -118,9 +93,6 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
     public void initialize(InputSplit genericSplit, TaskAttemptContext context)
             throws IOException, InterruptedException {
         Configuration jobConf = context.getConfiguration();
-        // construct start and end tag of record element
-        startTag = ("<" + jobConf.get(TAG) + " ").getBytes(ENCODING);
-        endTag = ("</" + jobConf.get(TAG) + ">").getBytes(ENCODING);
 
         FileSplit split = (FileSplit) genericSplit;
 
@@ -134,45 +106,12 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         FileSystem fs = file.getFileSystem(jobConf);
         fsin = fs.open(split.getPath());
 
-        setRootData();
+        xml = new XmlFSUtil(fsin, end, tag);
+
+        xml.readDeclaration();
+        xml.readRootTag();
 
         fsin.seek(start);
-    }
-
-    /**
-     * Sets the root element name and its attributes.
-     *
-     * @throws IOException
-     */
-    private void setRootData() throws IOException {
-        buffer = new DataOutputBuffer();
-        fsin.seek(0L);
-        // get xml decl definition
-        if (readUntilMatch("<?xml".getBytes(ENCODING), false)) {
-            buffer.write("<?xml".getBytes(ENCODING));
-            readUntilMatch("?>".getBytes(ENCODING), true);
-            buffer.write("?>".getBytes(ENCODING));
-        }
-        decl = Arrays.copyOf(buffer.getData(), buffer.size());
-
-        LOG.debug("decl = " + new String(decl, Charset.forName(ENCODING)) + ", len = " + decl.length);
-
-        buffer = new DataOutputBuffer();
-        // get root element tag
-        if (readUntilMatch("<".getBytes(ENCODING), false)) {
-            readUntilMatch(" ".getBytes(ENCODING), true);
-        }
-
-        root = Arrays.copyOf(buffer.getData(), buffer.size());
-
-        LOG.debug("root = " + new String(root) + ", len = " + root.length);
-
-        buffer = new DataOutputBuffer();
-        // read attributes of root
-        readUntilMatch(">".getBytes(ENCODING), true);
-        rootAttr = Arrays.copyOf(buffer.getData(), buffer.size());
-        LOG.debug("rootAttr = " + new String(rootAttr) + ", len = " + rootAttr.length);
-
     }
 
     @Override
@@ -186,90 +125,23 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         return retVal < 1 ? retVal : 1F;
     }
 
-    private boolean readUntilMatch(byte[] match, boolean withinBlock) throws IOException {
-        int i = 0;
-        int[] matched = new int[match.length];
-        while (true) {
-            int b = fsin.read();
-
-            //LOG.debug("b = " + (char)(b));
-
-            // end of file:
-            if (b == -1) {
-                LOG.debug("b = -1");
-                return false;
-            }
-
-            // check if we're matching:
-            if (b == match[i]) {
-                matched[i] = b;
-                i++;
-                if (i >= match.length) {
-                    return true;
-                }
-            } else {
-                if (withinBlock) {
-                    // not matched, write partly matched data to buffer
-                    for (int j = 0; j < i; j++) {
-                        buffer.write(matched[j]);
-                    }
-                    // write current not-matching byte to buffer:
-                    buffer.write(b);
-                }
-                i = 0;
-            }
-
-
-            // see if we've passed the stop point:
-            if (!withinBlock && i == 0 && fsin.getPos() >= end) {
-                LOG.debug("passing the end point");
-                return false;
-            }
-        }
-    }
-
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         LOG.debug("reading nextKeyvalue");
         LOG.debug("fsin.getPos = " + fsin.getPos() + ", end = " + end);
 
         // sets rawData, or not if no more available
-        if( nextData() == null ) return false; 
+        if( xml.readNextData() == null ) return false; 
 
         value = new DTO();
-        readDTO(); // sets value
+        value.setObject(createDTO()); 
+
         key = new Text(value.getIdentifier());
         return true;
     }
 
-    /**
-     * Reads next data record ie the attributes of the xml element (without
-     * element name), its contents and the end tag.
-     *
-     * @return
-     * @throws IOException
-     */
-    private byte[] nextData() throws IOException {
-        buffer = new DataOutputBuffer();
-        rawData = null;
-        if (fsin.getPos() < end) {
-            LOG.debug("startTag = " + new String(startTag));
-            if (readUntilMatch(startTag, false)) {
-                //buffer.write(startTag);
-                if (readUntilMatch(endTag, true)) {
-                    LOG.debug("buffer contains then: " + new String(buffer.getData()));
-                    buffer.write(endTag);
-                    // build valid xml with one record
-                    rawData = Arrays.copyOf(buffer.getData(), buffer.size());
-                    return rawData;
-                }
-            }
-        }
-        return rawData;
-    }
-
     public byte[] getRawData() {
-        return rawData;
+        return xml.getRawData();
     }
 
     /**
@@ -280,9 +152,9 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
      * @return
      * @throws IOException
      */
-    private DTO readDTO() throws IOException {
+    private Object createDTO() throws IOException {
 
-        byte[] buf = concatAll(decl, startTag, rootAttr, " ".getBytes(ENCODING), rawData);
+        byte[] buf = xml.getRecord();
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
 
@@ -296,30 +168,16 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         bais.reset();
         try {
             if( DTO.type.equals(MetsDocument.class) )
-                value.setObject(
+                return
                     SCAPEMarshaller.getInstance()
-                        .getJaxbUnmarshaller().unmarshal(bais));
+                        .getJaxbUnmarshaller().unmarshal(bais);
             else
-                value.setObject(SCAPEMarshaller.getInstance().deserialize(DTO.type, bais));
+                return 
+                    SCAPEMarshaller.getInstance().deserialize(DTO.type, bais);
 
         } catch (JAXBException e) {
             throw new IOException(e);
         }
-        return value;
-    }
-
-    public static byte[] concatAll(byte[] first, byte[]... rest) {
-        int totalLength = first.length;
-        for (byte[] array : rest) {
-            totalLength += array.length;
-        }
-        byte[] result = Arrays.copyOf(first, totalLength);
-        int offset = first.length;
-        for (byte[] array : rest) {
-            System.arraycopy(array, 0, result, offset, array.length);
-            offset += array.length;
-        }
-        return result;
     }
 
     @Override

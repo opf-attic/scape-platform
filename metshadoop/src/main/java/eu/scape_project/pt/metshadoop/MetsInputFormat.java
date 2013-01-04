@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class MetsInputFormat extends FileInputFormat<Text, DTO> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MetsInputFormat.class);
+    public static String TAG = "MetsInputFormat.XmlTag";
 
     @Override
     public RecordReader<Text, DTO> createRecordReader(InputSplit split,
@@ -38,10 +39,11 @@ public class MetsInputFormat extends FileInputFormat<Text, DTO> {
             LOG.debug("split.length = " + split.getLength());
             LOG.debug("split.string = " + split.toString());
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(MetsInputFormat.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getMessage());
         } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(MetsInputFormat.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getMessage());
         }
-        return new MetsRecordReader();
+        String tag = context.getConfiguration().get(MetsInputFormat.TAG);
+        return new MetsRecordReader(tag);
     }
 }

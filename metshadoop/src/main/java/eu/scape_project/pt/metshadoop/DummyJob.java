@@ -124,7 +124,8 @@ public class DummyJob extends Configured implements Tool
 
         Path file_on_hdfs = new Path( strings[0] );
 
-        conf.set(MetsRecordReader.TAG, "mets:mets");
+        conf.set(MetsInputFormat.TAG, "mets:mets");
+        conf.set(MetsOutputFormat.TAG, "mets:mets");
 
         Job job = new Job(conf);
 
@@ -133,14 +134,13 @@ public class DummyJob extends Configured implements Tool
         job.setJobName("dummy-job-using-connector-api");
         job.setJarByClass(DummyJob.class);
 
-        job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(DTO.class);
 
         job.setMapperClass(DummyJobMapper.class);
 
         //job.setReducerClass(DummyJobReducer.class);
 
-        //job.setInputFormatClass(XmlInputFormat.class);
         job.setInputFormatClass(MetsInputFormat.class);
         job.setOutputFormatClass(MetsOutputFormat.class);
 

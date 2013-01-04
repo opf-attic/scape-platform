@@ -8,14 +8,11 @@ import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.model.IntellectualEntityCollection;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -44,6 +41,7 @@ class DTO implements Writable, Comparable, WritableComparable {
     }
 
     public String getIdentifier() {
+        
         if( type.equals( IntellectualEntity.class) ) {
             return ((IntellectualEntity)object).getIdentifier().getValue();
         } else if( type.equals(MetsDocument.class)) {
@@ -69,7 +67,7 @@ class DTO implements Writable, Comparable, WritableComparable {
         } catch (JAXBException ex) {
             throw new IOException(ex);
         }
-        d.write(baos.toByteArray());
+        d.writeUTF(new String(baos.toByteArray()));
     }
 
     /**
@@ -82,16 +80,9 @@ class DTO implements Writable, Comparable, WritableComparable {
         //StringBuilder sb = new StringBuilder();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         //char c;
-        byte b;
-        try {
-            while (true) {
-                //c = di.readChar();
-                b = di.readByte();
-                //sb.append(c);
-                baos.write(b);
-            }
-        }catch( Exception e ) {};
-        ByteArrayInputStream bais = new ByteArrayInputStream( baos.toByteArray() );
+        String xml = di.readUTF();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream( xml.getBytes() );
         try {
             if( type.equals( MetsDocument.class ) )
                 object = SCAPEMarshaller.getInstance()
