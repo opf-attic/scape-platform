@@ -6,7 +6,7 @@ The aim of this project is to make METS files usable within the Hadoop framework
 * MetsInputFormat with MetsRecordReader
 * MetsOutputFormat with MetsRecordWriter
 
-The first two read METS-elements from an input XML and unmarshal these into METS objects, e.g. MetsDocument or IntellectualEntity. The latter two write METS objects into one XML. [SCAPE-DTO](https://github.com/fasseg/scape-dto) and [METS-DTO](https://github.com/fasseg/mets-dto) are used for these transformations.
+The first two read METS-elements from an input XML and unmarshal these into METS objects, e.g. MetsDocument or IntellectualEntity. The latter two write METS objects into one XML. [SCAPE-DTO](https://github.com/fasseg/scape-platform-datamodel) and [METS-DTO](https://github.com/fasseg/mets-dto) are used for these transformations.
 
 [DummyJob](https://github.com/openplanets/scape-platform/blob/master/metshadoop/src/main/java/eu/scape_project/pt/metshadoop/DummyJob.java) demonstrates a dummy Hadoop job using *MetsInputFormat* and *MetsOutputFormat*. Invoke it on a running Hadoop installation by following command:
 
