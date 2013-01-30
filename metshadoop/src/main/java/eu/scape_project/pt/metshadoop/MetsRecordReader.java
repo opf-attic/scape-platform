@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 /**
  * MetsRecordReader class to read through a given xml document to output xml
  * blocks as records as specified by the start tag and end tag.
+ * The records to be read must be nested within a root element in the xml document.
+ * It is not allowed to have a record block as root (ie. a document with one record).
  *
  * @author Matthias Rella [myrho]
  */
@@ -136,6 +138,7 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         value = new DTO();
         value.setObject(createDTO()); 
 
+        LOG.debug("value.getIdentifier() = " + value.getIdentifier());
         key = new Text(value.getIdentifier());
         return true;
     }

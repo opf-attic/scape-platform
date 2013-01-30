@@ -45,7 +45,9 @@ class DTO implements Writable, Comparable, WritableComparable {
         if( type.equals( IntellectualEntity.class) ) {
             return ((IntellectualEntity)object).getIdentifier().getValue();
         } else if( type.equals(MetsDocument.class)) {
-            return ((MetsDocument)object).getId();
+            return ((MetsDocument)object).getId() != null
+                    ? ((MetsDocument)object).getId() 
+                    : ((MetsDocument)object).getObjId();
         }
         throw new RuntimeException( "Type " + type + " not supported" );
     }
