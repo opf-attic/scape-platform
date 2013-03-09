@@ -10,28 +10,36 @@ import eu.scapeproject.model.metadata.dc.DCMetadata;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
 import java.io.InputStream;
 import java.net.URL;
-import junit.framework.TestCase;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.*;
 
-public class MetsRecordReaderTest extends TestCase {
+public class MetsRecordReaderTest{
 
     String beginning, ending, rawData1, rawData2, startTag, rootAttr;
     InputSplit genericSplit;
     TaskAttemptContext context;
     
-    public MetsRecordReaderTest(String testName) {
-        super(testName);
+    public MetsRecordReaderTest() {
+    }
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
     }
     
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         DTO.setType(MetsDocument.class);
 
         System.out.println("DTO.type = " + DTO.type.getName());
@@ -53,9 +61,8 @@ public class MetsRecordReaderTest extends TestCase {
         context = new TaskAttemptContext(conf, new TaskAttemptID());
     }
     
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         FileSplit split = (FileSplit)genericSplit;
         Configuration conf = context.getConfiguration();
 
@@ -73,20 +80,20 @@ public class MetsRecordReaderTest extends TestCase {
         MetsRecordReader instance = new MetsRecordReader(tag);
         instance.initialize(genericSplit, context);
         float expResult = 0.0F;
+        System.out.println("nextKeyValue");
         instance.nextKeyValue();
         float result = instance.getProgress();
-        System.out.println("result = " + result );
+        System.out.println("progress = " + result );
         assertTrue(result < 1 );
+        System.out.println("nextKeyValue");
         instance.nextKeyValue();
         result = instance.getProgress();
-        System.out.println("result = " + result );
+        System.out.println("progress = " + result );
+        System.out.println("nextKeyValue");
         instance.nextKeyValue();
         result = instance.getProgress();
-        System.out.println("result = " + result );
+        System.out.println("progress = " + result );
         assertTrue(result == 1 );
-        //assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
     }
 
     /**
