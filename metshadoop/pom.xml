@@ -75,13 +75,13 @@
         <dependency>
             <groupId>eu.scapeproject.model</groupId>
             <artifactId>scape-dto</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.3-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>de.congrace</groupId>
             <artifactId>scape-tck</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.3-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
     </dependencies>
