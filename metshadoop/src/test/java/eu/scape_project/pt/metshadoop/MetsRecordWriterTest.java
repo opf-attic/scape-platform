@@ -23,7 +23,6 @@ import org.junit.*;
  *
  * @author Matthias Rella, DME-AIT
  */
-@Ignore
 public class MetsRecordWriterTest {
 
     private FSDataOutputStream out;
@@ -67,7 +66,7 @@ public class MetsRecordWriterTest {
     /**
      * Test of write method, of class MetsRecordWriterTest.
      */
-    @Ignore("need to fix the namespaces match")
+    @Test
     public void testWrite() throws Exception {
         String tag = conf.get(MetsOutputFormat.TAG);
         MetsRecordWriter writer = new MetsRecordWriter(out, tag);
