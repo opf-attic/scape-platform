@@ -1,5 +1,6 @@
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop.dummy;
 
+import eu.scape_project.pt.mets.hadoop.DTO;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import java.io.IOException;

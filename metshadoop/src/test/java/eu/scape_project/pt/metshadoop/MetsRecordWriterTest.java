@@ -4,6 +4,9 @@
  */
 package eu.scape_project.pt.metshadoop;
 
+import eu.scape_project.pt.mets.hadoop.DTO;
+import eu.scape_project.pt.mets.hadoop.MetsOutputFormat;
+import eu.scape_project.pt.mets.hadoop.MetsRecordWriter;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
 import java.io.IOException;

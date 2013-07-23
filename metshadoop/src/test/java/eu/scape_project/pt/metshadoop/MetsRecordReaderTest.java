@@ -4,6 +4,9 @@
  */
 package eu.scape_project.pt.metshadoop;
 
+import eu.scape_project.pt.mets.hadoop.DTO;
+import eu.scape_project.pt.mets.hadoop.MetsRecordReader;
+import eu.scape_project.pt.mets.hadoop.MetsInputFormat;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.model.metadata.dc.DCMetadata;

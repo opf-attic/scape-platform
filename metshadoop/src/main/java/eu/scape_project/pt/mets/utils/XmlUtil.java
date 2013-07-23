@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template fsin the editor.
  */
-package eu.scape_project.pt.metshadoop.utils;
+package eu.scape_project.pt.mets.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

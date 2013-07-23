@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop;
 
 import java.io.IOException;
 import java.util.logging.Level;

@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package eu.scape_project.pt.metshadoop.utils;
+package eu.scape_project.pt.mets.hadoop.utils;
 
+import eu.scape_project.pt.mets.utils.XmlUtil;
 import java.io.IOException;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.slf4j.Logger;

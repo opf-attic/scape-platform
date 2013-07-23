@@ -1,5 +1,8 @@
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop.dummy;
 
+import eu.scape_project.pt.mets.hadoop.DTO;
+import eu.scape_project.pt.mets.hadoop.MetsInputFormat;
+import eu.scape_project.pt.mets.hadoop.MetsOutputFormat;
 import eu.scapeproject.ConnectorAPIMock;
 import eu.scapeproject.model.Identifier;
 import eu.scapeproject.model.IntellectualEntity;

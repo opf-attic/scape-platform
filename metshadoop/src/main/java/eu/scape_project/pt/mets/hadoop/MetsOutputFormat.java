@@ -1,4 +1,4 @@
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop;
 
 import java.io.IOException;
 

@@ -14,10 +14,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop;
 
-import eu.scape_project.pt.metshadoop.utils.XmlFSUtil;
-import eu.scape_project.pt.metshadoop.utils.XmlUtil;
+import eu.scape_project.pt.mets.utils.XmlFSUtil;
+import eu.scape_project.pt.mets.utils.XmlUtil;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.mets.SCAPEMarshaller;
 import java.io.ByteArrayInputStream;

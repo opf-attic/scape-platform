@@ -1,6 +1,6 @@
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop;
 
-import eu.scape_project.pt.metshadoop.utils.XmlUtil;
+import eu.scape_project.pt.mets.utils.XmlUtil;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.model.IntellectualEntityCollection;
@@ -87,7 +87,7 @@ public class MetsRecordWriter extends RecordWriter<Text, DTO> {
                     MetsUtil.convertEntity(
                         (IntellectualEntity) dto.getObject()));
 
-            SCAPEMarshaller.getInstance().serialize(new IntellectualEntityCollection(list), baos);
+            //SCAPEMarshaller.getInstance().serialize(new IntellectualEntityCollection(list), baos);
 
 
         } catch (JAXBException ex) {
