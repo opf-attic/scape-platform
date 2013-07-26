@@ -4,6 +4,7 @@
  */
 package eu.scape_project.pt.mets.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +36,7 @@ public class XmlUtil {
     /**
      * Buffer to put record data to
      */
-    protected StringBuffer buffer = new StringBuffer();
+    protected ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
     /**
      * Raw Data for a record
@@ -105,14 +106,42 @@ public class XmlUtil {
                 if (withinBlock) {
                     // not matched, write partly matched data to buffer
                     for (int j = 0; j < i; j++) {
-                        buffer.append(matched[j]);
+                        buffer.write(matched[j]);
                     }
                     // write current not-matching byte to buffer:
-                    buffer.append(b);
+                    buffer.write(b);
                 }
                 i = 0;
             }
 
+        }
+    }
+
+    /** 
+     * Checks whether inputstream has given byte array at the current position
+     * @param bytes
+     * @return 
+     */
+    private boolean hasAtCurrentPos(byte[] match) throws IOException {
+        int i = 0;
+        while (true) {
+            int b = in.read();
+
+            //LOG.debug("b = " + (char)(b));
+
+            // end of file:
+            if (b == -1) {
+                LOG.debug("b = -1");
+                return false;
+            }
+
+            // check if we're matching:
+            if (b == match[i]) {
+                i++;
+                if (i >= match.length) {
+                    return true;
+                }
+            }
         }
     }
 
@@ -123,14 +152,14 @@ public class XmlUtil {
      * @throws IOException 
      */
     public void readDeclaration() throws IOException {
-        buffer = new StringBuffer();
+        buffer = new ByteArrayOutputStream();
         // get xml decl definition
-        if (readUntilMatch("<?xml".getBytes(ENCODING), false)) {
-            buffer.append("<?xml".getBytes(ENCODING));
+        if (hasAtCurrentPos("<?xml".getBytes(ENCODING))) {
+            buffer.write("<?xml".getBytes(ENCODING));
             readUntilMatch("?>".getBytes(ENCODING), true);
-            buffer.append("?>".getBytes(ENCODING));
+            buffer.write("?>".getBytes(ENCODING));
         }
-        decl = Arrays.copyOf(buffer.toString().getBytes(ENCODING), buffer.length());
+        decl = buffer.toByteArray();
 
         LOG.debug("decl = " + new String(decl, Charset.forName(ENCODING)) + ", len = " + decl.length);
     }
@@ -141,23 +170,21 @@ public class XmlUtil {
      * @throws IOException 
      */
     public void readRootTag() throws IOException {
-        buffer = new StringBuffer();
+        buffer = new ByteArrayOutputStream();
         // get root element tag
         if (readUntilMatch("<".getBytes(ENCODING), false)) {
             readUntilMatch(" ".getBytes(ENCODING), true);
         }
 
-        String bla = new String();
+        root = buffer.toByteArray();
 
-        root = Arrays.copyOf(buffer.toString().getBytes(ENCODING), buffer.length());
+        LOG.debug("root = " + buffer.toString() + ", len = " + root.length);
 
-        LOG.debug("root = " + new String(root) + ", len = " + root.length);
-
-        buffer = new StringBuffer();
+        buffer = new ByteArrayOutputStream();
         // read attributes of root
         readUntilMatch(">".getBytes(ENCODING), true);
         // TODO only read xmlns attributes!
-        rootAttr = Arrays.copyOf(buffer.toString().getBytes(ENCODING), buffer.length());
+        rootAttr = buffer.toByteArray();
         LOG.debug("rootAttr = " + new String(rootAttr) + ", len = " + rootAttr.length);
 
     }
@@ -170,16 +197,16 @@ public class XmlUtil {
      * @throws IOException
      */
     public byte[] readNextData() throws IOException {
-        buffer = new StringBuffer();
+        buffer = new ByteArrayOutputStream();
         rawData = null;
         LOG.debug("startTag = " + new String(startTag));
         if (readUntilMatch(startTag, false)) {
             //buffer.write(startTag);
             if (readUntilMatch(endTag, true)) {
                 LOG.debug("buffer contains then: " + new String(buffer.toString().getBytes(ENCODING)));
-                buffer.append(endTag);
+                buffer.write(endTag);
                 // build valid xml with one record
-                rawData = Arrays.copyOf(buffer.toString().getBytes(ENCODING), buffer.length());
+                rawData = buffer.toByteArray();
                 return rawData;
             }
         }
@@ -201,7 +228,8 @@ public class XmlUtil {
     }
 
     public static byte[] concatAll(byte[] first, byte[]... rest) {
-        int totalLength = first != null ? first.length : 0;
+        int i, lenOfReadBytes; 
+        int totalLength = lenOfReadBytes = i = first != null ? first.length : 0;
         for (byte[] array : rest) {
             if( array != null) totalLength += array.length;
         }
@@ -211,8 +239,9 @@ public class XmlUtil {
             System.arraycopy(first, 0, result, 0, first.length );
         }
 
-        int b = 0, lenOfReadBytes = 0;
-        for( int i = 0; i < totalLength; i++ ) {
+        int b = 0;
+        for( ; i < totalLength; i++ ) {
+            if( rest == null ) b++;
             if( i >= rest[b].length + lenOfReadBytes ) {
                 lenOfReadBytes += rest[b++].length;
             }
