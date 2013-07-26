@@ -4,8 +4,8 @@ import eu.scape_project.pt.mets.utils.XmlUtil;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.model.IntellectualEntityCollection;
-import eu.scapeproject.model.mets.SCAPEMarshaller;
-import eu.scapeproject.model.util.MetsUtil;
+import eu.scapeproject.util.ScapeMarshaller;
+//import eu.scapeproject.model.util.MetsUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -79,20 +79,25 @@ public class MetsRecordWriter extends RecordWriter<Text, DTO> {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         List<MetsDocument> list = new LinkedList<MetsDocument>();
-        try {
+        //try {
             if( DTO.type.equals(MetsDocument.class)) 
                 list.add( (MetsDocument)dto.getObject() );
-            else if( DTO.type.equals(IntellectualEntity.class)) 
+            else if( DTO.type.equals(IntellectualEntity.class))  {
+                /*
+                 * refactor: 
                 list.add( 
                     MetsUtil.convertEntity(
                         (IntellectualEntity) dto.getObject()));
+                        */
+            }
 
             //SCAPEMarshaller.getInstance().serialize(new IntellectualEntityCollection(list), baos);
 
 
-        } catch (JAXBException ex) {
-            throw new IOException(ex);
-        }
+            // refactor:
+        //} catch (JAXBException ex) {
+            //throw new IOException(ex);
+        //}
 
         byte[] buf = baos.toByteArray();
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);

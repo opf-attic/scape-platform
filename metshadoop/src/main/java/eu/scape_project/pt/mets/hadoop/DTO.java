@@ -7,7 +7,7 @@ package eu.scape_project.pt.mets.hadoop;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.model.IntellectualEntityCollection;
-import eu.scapeproject.model.mets.SCAPEMarshaller;
+import eu.scapeproject.util.ScapeMarshaller;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +22,7 @@ import org.apache.hadoop.io.WritableComparable;
  * 
  * @author Matthias Rella [myrho]
  */
-class DTO implements Writable, Comparable, WritableComparable {
+public class DTO implements Writable, Comparable, WritableComparable {
 
     public static Class type = MetsDocument.class;
 
@@ -62,10 +62,10 @@ class DTO implements Writable, Comparable, WritableComparable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             if( object instanceof MetsDocument )
-                SCAPEMarshaller.getInstance()
+                ScapeMarshaller.newInstance()
                         .getJaxbMarshaller().marshal(object, baos);
             else
-                SCAPEMarshaller.getInstance().serialize(object, baos);
+                ScapeMarshaller.newInstance().serialize(object, baos);
         } catch (JAXBException ex) {
             throw new IOException(ex);
         }
@@ -87,10 +87,10 @@ class DTO implements Writable, Comparable, WritableComparable {
         ByteArrayInputStream bais = new ByteArrayInputStream( xml.getBytes() );
         try {
             if( type.equals( MetsDocument.class ) )
-                object = SCAPEMarshaller.getInstance()
+                object = ScapeMarshaller.newInstance()
                         .getJaxbUnmarshaller().unmarshal(bais);
             else
-                object = SCAPEMarshaller.getInstance().deserialize(type, bais);
+                object = ScapeMarshaller.newInstance().deserialize(type, bais);
         } catch (JAXBException ex) {
             throw new IOException(ex);
         }

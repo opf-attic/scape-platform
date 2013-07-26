@@ -1,39 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<scape:entity-list xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:scape="http://scapeproject.eu/model" xmlns:ns5="http::/scapeproject.eu/model" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:premis="http://www.loc.gov/standards/premis" xmlns:marc="http://www.loc.gov/MARC21/slim" xmlns:amd="http://www.loc.gov/AMD/" xmlns:mix="http://www.loc.gov/mix/v10" xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output" xmlns:textmd="info:lc/xmlns/textmd-v3" xmlns:vmd="http://www.loc.gov/videoMD/" xmlns:gbs="http://books.google.com/gbs" xmlns:ns15="info:lc/xmlns/premis-v2">
-    <mets:mets ID="DMD-d63d0623-5046-4135-8cf8-c19eb52bc1e3" OBJID="e0698613-9ead-465b-8747-b58f30baf849" LABEL="A test entity">
-        <mets:metsHdr ID="HDR-9a5697d0-32ac-46fc-9f18-7252c8b826ba" RECORDSTATUS="INGESTED" VERSION="0"/>
-        <mets:dmdSec ID="44db61e2-f527-42f4-99fd-84f0c527965e" CREATED="2013-01-03T13:05:11.536+01:00">
-            <mets:mdWrap MDTYPE="DC" SIZE="0">
+<scape:entity-list xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:scape="http://scapeproject.eu/model" xmlns:gbs="http://books.google.com/gbs" xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output" xmlns:textmd="info:lc/xmlns/textmd-v3" xmlns:ns8="http://www.loc.gov/audioMD/" xmlns:marc="http://www.loc.gov/MARC21/slim" xmlns:ns10="http://www.loc.gov/mix/v20" xmlns:vmd="http://www.loc.gov/videoMD/" xmlns:premis="info:lc/xmlns/premis-v2" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <mets:mets ID="6448b8bd-b683-4754-b668-eba2f6db29b3" OBJID="6448b8bd-b683-4754-b668-eba2f6db29b3" PROFILE="scape">
+        <mets:metsHdr RECORDSTATUS="INGESTED"/>
+        <mets:dmdSec>
+            <mets:mdWrap>
                 <mets:xmlData>
-                    <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dcMetadata" scape:identifier="44db61e2-f527-42f4-99fd-84f0c527965e">
-                        <dc:date>2013-01-03 13:05:11.536</dc:date>
-                        <dc:title>A test entity</dc:title>
-                        <dc:language>en</dc:language>
-                    </metadata>
+                    <dc:dublin-core>
+                        <dc:title>a test entity</dc:title>
+                    </dc:dublin-core>
                 </mets:xmlData>
             </mets:mdWrap>
         </mets:dmdSec>
-        <mets:fileSec ID="FILE-e0d5666b-d11e-42de-85eb-3286905a3961"/>
+        <mets:amdSec/>
+        <mets:fileSec>
+            <mets:fileGrp/>
+        </mets:fileSec>
         <mets:structMap>
-            <mets:div TYPE="Intellectual entity" ORDER="0"/>
+            <mets:div TYPE="Intellectual entity"/>
         </mets:structMap>
     </mets:mets>
-    <mets:mets ID="DMD-094c9ed2-00d8-4960-9afb-b41bf65c6728" OBJID="83528cfe-e8b4-41ee-acc1-0c127976f674" LABEL="A test entity">
-        <mets:metsHdr ID="HDR-7d07a538-15f6-46fa-91d1-b8f6d6875dbf" RECORDSTATUS="INGESTED" VERSION="0"/>
-        <mets:dmdSec ID="4c6c6e88-7db8-4053-87ab-608d1ca66f0d" CREATED="2013-01-03T13:05:14.304+01:00">
-            <mets:mdWrap MDTYPE="DC" SIZE="0">
+    <mets:mets ID="08a262a1-a8a5-44f1-8263-2ee4b5d7cf97" OBJID="08a262a1-a8a5-44f1-8263-2ee4b5d7cf97" PROFILE="scape">
+        <mets:metsHdr RECORDSTATUS="INGESTED"/>
+        <mets:dmdSec>
+            <mets:mdWrap>
                 <mets:xmlData>
-                    <metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dcMetadata" scape:identifier="4c6c6e88-7db8-4053-87ab-608d1ca66f0d">
-                        <dc:date>2013-01-03 13:05:14.304</dc:date>
-                        <dc:title>Another test entity</dc:title>
-                        <dc:language>en</dc:language>
-                    </metadata>
+                    <dc:dublin-core>
+                        <dc:title>another test entity</dc:title>
+                    </dc:dublin-core>
                 </mets:xmlData>
             </mets:mdWrap>
         </mets:dmdSec>
-        <mets:fileSec ID="FILE-cfa6861a-9a18-424e-819b-d3cceae151ae"/>
+        <mets:amdSec/>
+        <mets:fileSec>
+            <mets:fileGrp/>
+        </mets:fileSec>
         <mets:structMap>
-            <mets:div TYPE="Intellectual entity" ORDER="0"/>
+            <mets:div TYPE="Intellectual entity"/>
         </mets:structMap>
     </mets:mets>
 </scape:entity-list>

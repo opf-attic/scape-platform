@@ -8,7 +8,7 @@ import eu.scape_project.pt.mets.hadoop.DTO;
 import eu.scape_project.pt.mets.hadoop.MetsOutputFormat;
 import eu.scape_project.pt.mets.hadoop.MetsRecordWriter;
 import eu.scapeproject.dto.mets.MetsDocument;
-import eu.scapeproject.model.mets.SCAPEMarshaller;
+import eu.scapeproject.util.ScapeMarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
@@ -80,7 +80,7 @@ public class MetsRecordWriterTest {
                 DTO dto = new DTO();
                 InputStream in = this.getClass().getClassLoader()
                         .getResourceAsStream("metsDoc"+i+".xml");
-                MetsDocument doc = (MetsDocument) SCAPEMarshaller.getInstance().getJaxbUnmarshaller().unmarshal(in);
+                MetsDocument doc = (MetsDocument) ScapeMarshaller.newInstance().getJaxbUnmarshaller().unmarshal(in);
                 
                 dto.setObject(doc);
                 writer.write(id, dto);
