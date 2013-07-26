@@ -7,9 +7,9 @@ package eu.scape_project.pt.metshadoop;
 import eu.scape_project.pt.mets.hadoop.DTO;
 import eu.scape_project.pt.mets.hadoop.MetsRecordReader;
 import eu.scape_project.pt.mets.hadoop.MetsInputFormat;
-import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.util.ScapeMarshaller;
+import gov.loc.mets.MetsType;
 import java.io.InputStream;
 import java.net.URL;
 import org.apache.hadoop.conf.Configuration;
@@ -22,6 +22,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import static org.junit.Assert.*;
 import org.junit.*;
+import sun.util.LocaleServiceProviderPool;
 
 public class MetsRecordReaderTest{
 
@@ -42,7 +43,7 @@ public class MetsRecordReaderTest{
     
     @Before
     public void setUp() throws Exception {
-        DTO.setType(MetsDocument.class);
+        DTO.setType(MetsType.class);
 
         System.out.println("DTO.type = " + DTO.type.getName());
 
@@ -51,7 +52,7 @@ public class MetsRecordReaderTest{
         Path path = new Path("tmp" + System.currentTimeMillis() );
         FileSystem fs = path.getFileSystem(conf);
 
-        String xmlFile = DTO.type.equals(MetsDocument.class) ?
+        String xmlFile = DTO.type.equals(MetsType.class) ?
                     "metsdocs.xml" : 
                     ( DTO.type.equals(IntellectualEntity.class) ? 
                     "entities.xml" : null);
@@ -107,28 +108,16 @@ public class MetsRecordReaderTest{
         String tag = context.getConfiguration().get(MetsInputFormat.TAG);
         MetsRecordReader instance = new MetsRecordReader(tag);
         instance.initialize(genericSplit, context);
-        if( DTO.type.equals(MetsDocument.class)) {
+        if( DTO.type.equals(MetsType.class)) {
             for( int i = 1; i <= 2; i++ ) {
                 instance.nextKeyValue();
                 InputStream in = this.getClass().getClassLoader()
                         .getResourceAsStream("metsDoc"+i+".xml");
 
-                MetsDocument doc = (MetsDocument) ScapeMarshaller.newInstance().getJaxbUnmarshaller().unmarshal(in);
-                MetsDocument value = (MetsDocument) instance.getCurrentValue().getObject();
-                assertEquals(doc.getId(), value.getId());
-                assertEquals(doc.getObjId(), value.getObjId());
-                assertEquals(doc.getLabel(), value.getLabel());
-                assertEquals(doc.getHeaders().get(0).getId(), value.getHeaders().get(0).getId());
-                assertEquals(doc.getHeaders().get(0).getRecordStatus(), value.getHeaders().get(0).getRecordStatus());
-                assertEquals(doc.getHeaders().get(0).getVersionNumber(), value.getHeaders().get(0).getVersionNumber());
+                MetsType doc = (MetsType) ScapeMarshaller.newInstance().deserialize(in);
+                MetsType value = (MetsType) instance.getCurrentValue().getObject();
 
-                assertEquals(doc.getDmdSec().getId(), value.getDmdSec().getId());
-                assertEquals(doc.getDmdSec().getMetadataReference().getId(), value.getDmdSec().getMetadataReference().getId());
-                assertEquals(doc.getDmdSec().getMetadataReference().getSize(), value.getDmdSec().getMetadataReference().getSize());
-                assertEquals(doc.getDmdSec().getMetadataReference().getHref(), value.getDmdSec().getMetadataReference().getHref());
-                assertEquals(doc.getFileSec().getId(), value.getFileSec().getId());
-                assertEquals(doc.getStructMaps().get(0).getDivisions().get(0).getType(), value.getStructMaps().get(0).getDivisions().get(0).getType());
-                assertEquals(doc.getStructMaps().get(0).getDivisions().get(0).getOrder(), value.getStructMaps().get(0).getDivisions().get(0).getOrder());
+                assertEquals(doc.getID(), value.getID());
             }
         } else if (DTO.type.equals(IntellectualEntity.class)){
             for( int i = 1; i <= 2; i++ ) {

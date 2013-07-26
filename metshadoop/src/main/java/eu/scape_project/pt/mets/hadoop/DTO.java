@@ -4,15 +4,11 @@
  */
 package eu.scape_project.pt.mets.hadoop;
 
-import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
-import eu.scapeproject.model.IntellectualEntityCollection;
 import eu.scapeproject.util.ScapeMarshaller;
+import gov.loc.mets.MetsType;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -24,7 +20,7 @@ import org.apache.hadoop.io.WritableComparable;
  */
 public class DTO implements Writable, Comparable, WritableComparable {
 
-    public static Class type = MetsDocument.class;
+    public static Class type = MetsType.class;
 
     public static void setType(Class aClass) {
         type = aClass;
@@ -44,10 +40,10 @@ public class DTO implements Writable, Comparable, WritableComparable {
         
         if( type.equals( IntellectualEntity.class) ) {
             return ((IntellectualEntity)object).getIdentifier().getValue();
-        } else if( type.equals(MetsDocument.class)) {
-            return ((MetsDocument)object).getId() != null
-                    ? ((MetsDocument)object).getId() 
-                    : ((MetsDocument)object).getObjId();
+        } else if( type.equals(MetsType.class)) {
+            return ((MetsType)object).getID() != null
+                    ? ((MetsType)object).getID() 
+                    : ((MetsType)object).getOBJID();
         }
         throw new RuntimeException( "Type " + type + " not supported" );
     }
@@ -61,11 +57,7 @@ public class DTO implements Writable, Comparable, WritableComparable {
     public void write(DataOutput d) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            if( object instanceof MetsDocument )
-                ScapeMarshaller.newInstance()
-                        .getJaxbMarshaller().marshal(object, baos);
-            else
-                ScapeMarshaller.newInstance().serialize(object, baos);
+            ScapeMarshaller.newInstance().serialize(object, baos);
         } catch (JAXBException ex) {
             throw new IOException(ex);
         }
@@ -86,9 +78,8 @@ public class DTO implements Writable, Comparable, WritableComparable {
 
         ByteArrayInputStream bais = new ByteArrayInputStream( xml.getBytes() );
         try {
-            if( type.equals( MetsDocument.class ) )
-                object = ScapeMarshaller.newInstance()
-                        .getJaxbUnmarshaller().unmarshal(bais);
+            if( type.equals( MetsType.class ) )
+                object = ScapeMarshaller.newInstance().deserialize(bais);
             else
                 object = ScapeMarshaller.newInstance().deserialize(type, bais);
         } catch (JAXBException ex) {
@@ -97,9 +88,9 @@ public class DTO implements Writable, Comparable, WritableComparable {
     }
 
     public int compareTo(Object o) {
-        if( type.equals( MetsDocument.class ))
+        if( type.equals( MetsType.class ))
             return new Integer(getIdentifier().hashCode()).compareTo( 
-                    ((MetsDocument)o).getId().hashCode());
+                    ((MetsType)o).getID().hashCode());
         return 0;
     }
 }

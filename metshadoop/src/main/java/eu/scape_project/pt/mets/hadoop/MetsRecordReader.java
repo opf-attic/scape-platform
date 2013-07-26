@@ -20,6 +20,7 @@ import eu.scape_project.pt.mets.hadoop.utils.XmlFSUtil;
 import eu.scape_project.pt.mets.utils.XmlUtil;
 import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.util.ScapeMarshaller;
+import gov.loc.mets.MetsType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
@@ -170,10 +171,9 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         LOG.debug("out = " + new String(out));
         bais.reset();
         try {
-            if( DTO.type.equals(MetsDocument.class) )
+            if( DTO.type.equals(MetsType.class) )
                 return
-                    ScapeMarshaller.newInstance()
-                        .getJaxbUnmarshaller().unmarshal(bais);
+                    ScapeMarshaller.newInstance().deserialize(bais);
             else
                 return 
                     ScapeMarshaller.newInstance().deserialize(DTO.type, bais);
