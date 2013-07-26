@@ -87,7 +87,7 @@ public class XmlUtil {
         while (true) {
             int b = in.read();
 
-            //LOG.debug("b = " + (char)(b));
+            //LOG.debug("checked = " + (char)(checked));
 
             // end of file:
             if (b == -1) {
@@ -118,33 +118,66 @@ public class XmlUtil {
     }
 
     /** 
-     * Checks whether inputstream has given byte array at the current position
+     * Checks whether inputstream has given byte array at the current position.
+     * Returns an array of bytes that have been read and checked.
      * @param bytes
      * @return 
      */
-    private boolean hasAtCurrentPos(byte[] match) throws IOException {
+    private byte[] hasAtCurrentPos(byte[] match) throws IOException {
         int i = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         while (true) {
             int b = in.read();
 
-            //LOG.debug("b = " + (char)(b));
-
             // end of file:
-            if (b == -1) {
-                LOG.debug("b = -1");
-                return false;
-            }
+            if (b == -1) break;
+
+            baos.write(b);
 
             // check if we're matching:
             if (b == match[i]) {
                 i++;
-                if (i >= match.length) {
-                    return true;
-                }
-            }
+                if (i >= match.length) break;
+            } else break;
         }
+        return baos.toByteArray();
     }
 
+    /**
+     * Reads the XML declaration and or the root tag. 
+     * 
+     * @throws IOException 
+     */
+    public void readDeclarationOrRootTag() throws IOException {
+        buffer = new ByteArrayOutputStream();
+        // get xml decl definition
+        byte[] xmldecl = "<?xml".getBytes(ENCODING);
+        byte[] checked = hasAtCurrentPos(xmldecl);
+        if ( Arrays.equals(checked, xmldecl)) {
+            buffer.write(xmldecl);
+            readUntilMatch("?>".getBytes(ENCODING), true);
+            buffer.write("?>".getBytes(ENCODING));
+            decl = buffer.toByteArray();
+            readRootTag();
+        } else {
+            decl = new byte[0];
+            // finish root element tag 
+            readUntilMatch(" ".getBytes(ENCODING), true);
+
+            root = concatAll( checked, buffer.toByteArray());
+
+            LOG.debug("root = " + buffer.toString() + ", len = " + root.length);
+
+            buffer = new ByteArrayOutputStream();
+            // read attributes of root
+            readUntilMatch(">".getBytes(ENCODING), true);
+            // TODO only read xmlns attributes!
+            rootAttr = buffer.toByteArray();
+            LOG.debug("rootAttr = " + new String(rootAttr) + ", len = " + rootAttr.length);
+        }
+
+        LOG.debug("decl = " + new String(decl, Charset.forName(ENCODING)) + ", len = " + decl.length);
+    }
     /**
      * Reads the XML declaration. Assumes that the stream pointer is 
      * at the beginning.
@@ -154,7 +187,7 @@ public class XmlUtil {
     public void readDeclaration() throws IOException {
         buffer = new ByteArrayOutputStream();
         // get xml decl definition
-        if (hasAtCurrentPos("<?xml".getBytes(ENCODING))) {
+        if (readUntilMatch("<?xml".getBytes(ENCODING), false)) {
             buffer.write("<?xml".getBytes(ENCODING));
             readUntilMatch("?>".getBytes(ENCODING), true);
             buffer.write("?>".getBytes(ENCODING));
