@@ -43,7 +43,7 @@ public class MetsRecordReaderTest{
     
     @Before
     public void setUp() throws Exception {
-        DTO.setType(MetsType.class);
+        DTO.setType(String.class);
 
         System.out.println("DTO.type = " + DTO.type.getName());
 
@@ -103,43 +103,47 @@ public class MetsRecordReaderTest{
      * Test of nextKeyValue method, of class MetsRecordReader.
      */
     @Test 
-    public void testNextKeyValue() throws Exception {
-        System.out.println("TEST: nextKeyValue");
+    public void testNextKeyValueIntellectualEntity() throws Exception {
+        System.out.println("TEST: nextKeyValue IntellectualEntity");
+        DTO.setType(IntellectualEntity.class);
         String tag = context.getConfiguration().get(MetsInputFormat.TAG);
         MetsRecordReader instance = new MetsRecordReader(tag);
         instance.initialize(genericSplit, context);
-        if( DTO.type.equals(MetsType.class)) {
-            for( int i = 1; i <= 2; i++ ) {
-                instance.nextKeyValue();
-                InputStream in = this.getClass().getClassLoader()
-                        .getResourceAsStream("metsDoc"+i+".xml");
+        for( int i = 1; i <= 2; i++ ) {
+            instance.nextKeyValue();
+            InputStream in = this.getClass().getClassLoader()
+                    .getResourceAsStream("entity"+i+".xml");
 
-                MetsType doc = (MetsType) ScapeMarshaller.newInstance().deserialize(in);
-                MetsType value = (MetsType) instance.getCurrentValue().getObject();
+            IntellectualEntity entity = (IntellectualEntity) ScapeMarshaller.newInstance().deserialize(IntellectualEntity.class, in);
+            IntellectualEntity value = (IntellectualEntity) instance.getCurrentValue().getObject();
+            assertEquals(entity.getIdentifier().getValue(), value.getIdentifier().getValue());
+            assertEquals(entity.getVersionNumber(), value.getVersionNumber());
+            //assertEquals(((DCMetadata)entity.getDescriptive()).getDate(), ((DCMetadata)value.getDescriptive()).getDate());
+            //assertEquals(((DCMetadata)entity.getDescriptive()).getTitle(), ((DCMetadata)value.getDescriptive()).getTitle());
+            //assertEquals(((DCMetadata)entity.getDescriptive()).getLanguage(), ((DCMetadata)value.getDescriptive()).getLanguage());
 
-                assertEquals(doc.getID(), value.getID());
-            }
-        } else if (DTO.type.equals(IntellectualEntity.class)){
-            for( int i = 1; i <= 2; i++ ) {
-                instance.nextKeyValue();
-                InputStream in = this.getClass().getClassLoader()
-                        .getResourceAsStream("entity"+i+".xml");
-
-                IntellectualEntity entity = (IntellectualEntity) ScapeMarshaller.newInstance().deserialize(IntellectualEntity.class, in);
-                IntellectualEntity value = (IntellectualEntity) instance.getCurrentValue().getObject();
-                assertEquals(entity.getIdentifier().getValue(), value.getIdentifier().getValue());
-                assertEquals(entity.getVersionNumber(), value.getVersionNumber());
-                //assertEquals(((DCMetadata)entity.getDescriptive()).getDate(), ((DCMetadata)value.getDescriptive()).getDate());
-                //assertEquals(((DCMetadata)entity.getDescriptive()).getTitle(), ((DCMetadata)value.getDescriptive()).getTitle());
-                //assertEquals(((DCMetadata)entity.getDescriptive()).getLanguage(), ((DCMetadata)value.getDescriptive()).getLanguage());
-
-            }
-
-        } else {
-            fail("Current set DTO.type not testable");
         }
-        //String value = startTag + rootAttr + " " + rawData1;
-        //assertEquals(value, instance.getRawData());
-        //fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of nextKeyValue method, of class MetsRecordReader.
+     */
+    @Ignore 
+    public void testNextKeyValueMetsType() throws Exception {
+        System.out.println("TEST: nextKeyValue MetsType");
+        DTO.setType(MetsType.class);
+        String tag = context.getConfiguration().get(MetsInputFormat.TAG);
+        MetsRecordReader instance = new MetsRecordReader(tag);
+        instance.initialize(genericSplit, context);
+        for( int i = 1; i <= 2; i++ ) {
+            instance.nextKeyValue();
+            InputStream in = this.getClass().getClassLoader()
+                    .getResourceAsStream("metsDoc"+i+".xml");
+
+            MetsType doc = (MetsType) ScapeMarshaller.newInstance().deserialize(in);
+            MetsType value = (MetsType) instance.getCurrentValue().getObject();
+
+            assertEquals(doc.getID(), value.getID());
+        }
     }
 }
