@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.scape_project.pt.metshadoop;
+package eu.scape_project.pt.mets.hadoop;
 
 import eu.scape_project.pt.mets.hadoop.DTO;
 import eu.scape_project.pt.mets.hadoop.MetsRecordReader;
