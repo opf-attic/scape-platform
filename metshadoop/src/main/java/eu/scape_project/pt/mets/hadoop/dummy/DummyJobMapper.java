@@ -1,7 +1,6 @@
 package eu.scape_project.pt.mets.hadoop.dummy;
 
 import eu.scape_project.pt.mets.hadoop.DTO;
-import eu.scapeproject.dto.mets.MetsDocument;
 import java.io.IOException;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,7 +17,7 @@ public class DummyJobMapper extends Mapper<Text, DTO, Text, DTO> {
 
     @Override
     public void setup(Context context) {
-        DTO.setType( MetsDocument.class );
+        DTO.setType( String.class );
     }
 
     @Override

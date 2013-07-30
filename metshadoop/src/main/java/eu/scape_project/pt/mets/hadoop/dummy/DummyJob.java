@@ -1,10 +1,13 @@
 package eu.scape_project.pt.mets.hadoop.dummy;
 
+import eu.scape_project.pt.mets.hadoop.DTO;
 import eu.scape_project.pt.mets.hadoop.MetsInputFormat;
 import eu.scape_project.pt.mets.hadoop.MetsOutputFormat;
 import eu.scapeproject.ConnectorAPIMock;
 import eu.scapeproject.model.Identifier;
 import eu.scapeproject.model.IntellectualEntity;
+import eu.scapeproject.model.IntellectualEntityCollection;
+import eu.scapeproject.util.ScapeMarshaller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,18 +87,17 @@ public class DummyJob extends Configured implements Tool
 
             // get XML from Connector and write it to HDFS here
 
-            HttpGet get = UTIL.createGetEntity(entity1.getIdentifier().getValue(), true);
-            //post = UTIL.createGetUriList(uriList.toString());
-            resp = CLIENT.execute(get);
-
-            LOG.debug("received entities: " + resp.getStatusLine().getStatusCode());
+            List<IntellectualEntity> all = new ArrayList<IntellectualEntity>();
+            all.add(entity1);
+            all.add(entity2);
 
             Path entitiesPath = new Path( "entities.xml");
             FileSystem fs = entitiesPath.getFileSystem(new Configuration());
             FSDataOutputStream fsout = fs.create(entitiesPath);
             fs.delete(new Path("output"), true);
 
-            IOUtils.copy(resp.getEntity().getContent(), fsout);
+            ScapeMarshaller.newInstance().serialize(
+                    new IntellectualEntityCollection(all), fsout);
 
             post.releaseConnection();
 
@@ -131,8 +133,8 @@ public class DummyJob extends Configured implements Tool
         job.setJarByClass(DummyJob.class);
 
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        //job.setOutputValueClass(DTO.class);
+        //job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(DTO.class);
 
         job.setMapperClass(DummyJobMapper.class);
 
