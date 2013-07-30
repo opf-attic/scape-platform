@@ -55,7 +55,7 @@ public class MetsRecordReaderTest{
         String xmlFile = DTO.type.equals(MetsType.class) ?
                     "metsdocs.xml" : 
                     ( DTO.type.equals(IntellectualEntity.class) ? 
-                    "entities.xml" : null);
+                    "entities.xml" : "entities.xml");
 
         URL res = this.getClass().getClassLoader().getResource(xmlFile);
         fs.copyFromLocalFile(new Path(res.toURI()), path );
