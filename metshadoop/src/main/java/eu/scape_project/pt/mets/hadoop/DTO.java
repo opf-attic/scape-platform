@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.bind.JAXBException;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.slf4j.Logger;
@@ -30,6 +31,22 @@ public class DTO implements Writable, Comparable, WritableComparable {
     public static void setType(Class aClass) {
         type = aClass;
     }
+
+    public static Object deserialize(InputStream in ) throws IOException {
+        try {
+            if(type.equals(String.class)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                IOUtils.copy(in, baos);
+                return baos.toString();
+            } else if( type.equals( MetsType.class ) )
+                return ScapeMarshaller.newInstance().deserialize(in);
+            else
+                return ScapeMarshaller.newInstance().deserialize(type, in);
+        } catch (JAXBException ex) {
+            throw new IOException(ex);
+        }
+    }
+
 
     Object object;
 
@@ -92,14 +109,7 @@ public class DTO implements Writable, Comparable, WritableComparable {
             object = xml;
         } else {
             ByteArrayInputStream bais = new ByteArrayInputStream( xml.getBytes() );
-            try {
-                if( type.equals( MetsType.class ) )
-                    object = ScapeMarshaller.newInstance().deserialize(bais);
-                else
-                    object = ScapeMarshaller.newInstance().deserialize(type, bais);
-            } catch (JAXBException ex) {
-                throw new IOException(ex);
-            }
+            object = deserialize(bais);
         }
     }
 

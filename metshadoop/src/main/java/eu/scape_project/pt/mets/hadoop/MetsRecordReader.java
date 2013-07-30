@@ -170,17 +170,7 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
         }
         LOG.debug("out = " + new String(out));
         bais.reset();
-        try {
-            if( DTO.type.equals(MetsType.class) )
-                return
-                    ScapeMarshaller.newInstance().deserialize(bais);
-            else
-                return 
-                    ScapeMarshaller.newInstance().deserialize(DTO.type, bais);
-
-        } catch (JAXBException e) {
-            throw new IOException(e);
-        }
+        return DTO.deserialize(bais);
     }
 
     @Override
