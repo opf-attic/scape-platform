@@ -104,7 +104,7 @@ public class DummyJob extends Configured implements Tool
 
 	        fsout.close();
 
-            //int res = ToolRunner.run(new Configuration(), new DummyJob(), strings);
+            int res = ToolRunner.run(new Configuration(), new DummyJob(), strings);
 
             MOCK.stop();
             MOCK.close();
