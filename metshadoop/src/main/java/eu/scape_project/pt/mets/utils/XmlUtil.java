@@ -26,6 +26,11 @@ public class XmlUtil {
     /**
      * XML Element tag to start reading record at
      */
+    private byte[] tag;
+
+    /**
+     * XML Element tag to start reading record at
+     */
     private byte[] startTag;
 
     /**
@@ -65,6 +70,7 @@ public class XmlUtil {
 
     public XmlUtil( InputStream in, String tag) throws IOException {
         // construct start and end tag of record element
+        this.tag = tag.getBytes(ENCODING);
         startTag = ("<" + tag + " ").getBytes(ENCODING);
         endTag = ("</" + tag + ">").getBytes(ENCODING);
 
@@ -169,6 +175,9 @@ public class XmlUtil {
             readUntilMatch(" ".getBytes(ENCODING), true);
 
             root = concatAll( checked, buffer.toByteArray());
+
+            if( new String(root, ENCODING).equals(new String(tag, ENCODING)))
+                throw new IOException("Root tag must not be same as tag of record element");
 
             LOG.debug("root = " + new String(root, ENCODING) + ", len = " + root.length);
 
