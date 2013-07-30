@@ -1,10 +1,11 @@
 package eu.scape_project.pt.mets.hadoop;
 
 import eu.scape_project.pt.mets.utils.XmlUtil;
-import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.model.IntellectualEntity;
 import eu.scapeproject.model.IntellectualEntityCollection;
+import eu.scapeproject.util.DefaultConverter;
 import eu.scapeproject.util.ScapeMarshaller;
+import gov.loc.mets.MetsType;
 //import eu.scapeproject.model.util.MetsUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -53,8 +54,7 @@ public class MetsRecordWriter extends RecordWriter<Text, DTO> {
     public void close(TaskAttemptContext context) throws IOException,
             InterruptedException {
         xml.reset();
-        xml.readDeclaration();
-        xml.readRootTag();
+        xml.readDeclarationOrRootTag();
         xml.writeClosingRootTag(out);
         out.close();
 
@@ -78,26 +78,21 @@ public class MetsRecordWriter extends RecordWriter<Text, DTO> {
         LOG.debug( "writing DTO ... " + id.toString() );
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        List<MetsDocument> list = new LinkedList<MetsDocument>();
-        //try {
-            if( DTO.type.equals(MetsDocument.class)) 
-                list.add( (MetsDocument)dto.getObject() );
-            else if( DTO.type.equals(IntellectualEntity.class))  {
-                /*
-                 * refactor: 
-                list.add( 
-                    MetsUtil.convertEntity(
-                        (IntellectualEntity) dto.getObject()));
-                        */
+        List<IntellectualEntity> list = new LinkedList<IntellectualEntity>();
+        DefaultConverter conv = new DefaultConverter();
+        try {
+            if( DTO.type.equals(MetsType.class)) {
+                IntellectualEntity ie = conv.convertMets((MetsType)dto.getObject());
+                list.add( ie );
+            } else if( DTO.type.equals(IntellectualEntity.class))  {
+                list.add((IntellectualEntity)dto.getObject());
             }
 
-            //SCAPEMarshaller.getInstance().serialize(new IntellectualEntityCollection(list), baos);
+            ScapeMarshaller.newInstance().serialize(new IntellectualEntityCollection(list), baos);
 
-
-            // refactor:
-        //} catch (JAXBException ex) {
-            //throw new IOException(ex);
-        //}
+        } catch (JAXBException ex) {
+            throw new IOException(ex);
+        }
 
         byte[] buf = baos.toByteArray();
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
@@ -113,8 +108,7 @@ public class MetsRecordWriter extends RecordWriter<Text, DTO> {
 
         xml = new XmlUtil(bais, tag);
         if( isFirst ) {
-            xml.readDeclaration();
-            xml.readRootTag();
+            xml.readDeclarationOrRootTag();
 
             xml.writeDeclaration(this.out);
             xml.writeRootTag(this.out);

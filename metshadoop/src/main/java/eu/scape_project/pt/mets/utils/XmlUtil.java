@@ -151,9 +151,13 @@ public class XmlUtil {
     public void readDeclarationOrRootTag() throws IOException {
         buffer = new ByteArrayOutputStream();
         // get xml decl definition
-        byte[] xmldecl = "<?xml".getBytes(ENCODING);
+        if( !Arrays.equals(hasAtCurrentPos("<".getBytes(ENCODING)), "<".getBytes(ENCODING)))
+            return;
+
+        byte[] xmldecl = "?xml".getBytes(ENCODING);
         byte[] checked = hasAtCurrentPos(xmldecl);
         if ( Arrays.equals(checked, xmldecl)) {
+            buffer.write("<".getBytes(ENCODING));
             buffer.write(xmldecl);
             readUntilMatch("?>".getBytes(ENCODING), true);
             buffer.write("?>".getBytes(ENCODING));
@@ -166,7 +170,7 @@ public class XmlUtil {
 
             root = concatAll( checked, buffer.toByteArray());
 
-            LOG.debug("root = " + buffer.toString() + ", len = " + root.length);
+            LOG.debug("root = " + new String(root, ENCODING) + ", len = " + root.length);
 
             buffer = new ByteArrayOutputStream();
             // read attributes of root
@@ -284,7 +288,7 @@ public class XmlUtil {
     }
 
     public void writeDeclaration(OutputStream out) throws IOException {
-        out.write(decl);
+        if( decl != null ) out.write(decl);
     }
 
     public void writeRootTag(OutputStream out) throws IOException {

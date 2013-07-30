@@ -18,7 +18,6 @@ package eu.scape_project.pt.mets.hadoop;
 
 import eu.scape_project.pt.mets.hadoop.utils.XmlFSUtil;
 import eu.scape_project.pt.mets.utils.XmlUtil;
-import eu.scapeproject.dto.mets.MetsDocument;
 import eu.scapeproject.util.ScapeMarshaller;
 import gov.loc.mets.MetsType;
 import java.io.ByteArrayInputStream;
@@ -111,8 +110,9 @@ public class MetsRecordReader extends RecordReader<Text, DTO> {
 
         xml = new XmlFSUtil(fsin, end, tag);
 
-        xml.readDeclaration();
-        xml.readRootTag();
+        //xml.readDeclaration();
+        //xml.readRootTag();
+        xml.readDeclarationOrRootTag();
 
         fsin.seek(start);
     }

@@ -7,8 +7,10 @@ package eu.scape_project.pt.metshadoop;
 import eu.scape_project.pt.mets.hadoop.DTO;
 import eu.scape_project.pt.mets.hadoop.MetsOutputFormat;
 import eu.scape_project.pt.mets.hadoop.MetsRecordWriter;
-import eu.scapeproject.dto.mets.MetsDocument;
+import eu.scapeproject.model.IntellectualEntity;
+import eu.scapeproject.util.DefaultConverter;
 import eu.scapeproject.util.ScapeMarshaller;
+import gov.loc.mets.MetsType;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
@@ -45,10 +47,6 @@ public class MetsRecordWriterTest {
     
     @Before
     public void setUp() throws Exception {
-        DTO.setType(MetsDocument.class);
-
-        System.out.println("DTO.type = " + DTO.type.getName());
-
         conf = new Configuration();
         conf.set(MetsOutputFormat.TAG, "mets:mets");
         path = new Path("tmp" + System.currentTimeMillis() );
@@ -69,18 +67,20 @@ public class MetsRecordWriterTest {
     /**
      * Test of write method, of class MetsRecordWriterTest.
      */
-    @Test
-    public void testWrite() throws Exception {
+    @Ignore
+    public void testWriteMetsType() throws Exception {
+        DTO.setType(MetsType.class);
+
         String tag = conf.get(MetsOutputFormat.TAG);
         MetsRecordWriter writer = new MetsRecordWriter(out, tag);
         System.out.println("TEST: write");
-        if( DTO.type.equals(MetsDocument.class)) {
+        if( DTO.type.equals(MetsType.class)) {
             for( int i = 1; i <= 2; i++ ) {
                 Text id = new Text("entity" + i );
                 DTO dto = new DTO();
                 InputStream in = this.getClass().getClassLoader()
                         .getResourceAsStream("metsDoc"+i+".xml");
-                MetsDocument doc = (MetsDocument) ScapeMarshaller.newInstance().getJaxbUnmarshaller().unmarshal(in);
+                MetsType doc = (MetsType) ScapeMarshaller.newInstance().deserialize(in);
                 
                 dto.setObject(doc);
                 writer.write(id, dto);
@@ -91,6 +91,61 @@ public class MetsRecordWriterTest {
 
             InputStream in = this.getClass().getClassLoader()
                     .getResourceAsStream("metsdocs.xml");
+            FileSystem fs = path.getFileSystem(conf);
+            FSDataInputStream fsin = fs.open(path);
+            int b = 0;
+            StringBuilder exp = new StringBuilder();
+            while(b != -1) {
+                b = in.read();
+                exp.append((char)b);
+            }
+            int f = 0;
+            StringBuilder val = new StringBuilder();
+            while(f != -1) {
+                f = fsin.read();
+                val.append((char)f);
+            }
+
+            String expected = exp.toString().replaceAll("\\s", "");
+            String value = val.toString().replaceAll("\\s", "");
+
+            System.out.println(expected);
+            System.out.println(value);
+
+            assertEquals(expected, value);
+        }
+        
+    }
+    /**
+     * Test of write method, of class MetsRecordWriterTest.
+     */
+    @Test
+    public void testWriteIntellectualEntity() throws Exception {
+        DTO.setType(IntellectualEntity.class);
+
+        String tag = conf.get(MetsOutputFormat.TAG);
+        MetsRecordWriter writer = new MetsRecordWriter(out, tag);
+        DefaultConverter conv = new DefaultConverter();
+        System.out.println("TEST: write IntellectualEntity");
+        if( DTO.type.equals(IntellectualEntity.class)) {
+            for( int i = 1; i <= 2; i++ ) {
+                Text id = new Text("entity" + i );
+                DTO dto = new DTO();
+                InputStream in = this.getClass().getClassLoader()
+                        .getResourceAsStream("entity"+i+".xml");
+                MetsType doc = 
+                        (MetsType) ScapeMarshaller.newInstance().deserialize(in);
+                IntellectualEntity ie = conv.convertMets(doc);
+                
+                dto.setObject(ie);
+                writer.write(id, dto);
+            }
+
+            TaskAttemptContext context = new TaskAttemptContext(conf, new TaskAttemptID());
+            writer.close(context);
+
+            InputStream in = this.getClass().getClassLoader()
+                    .getResourceAsStream("entities.xml");
             FileSystem fs = path.getFileSystem(conf);
             FSDataInputStream fsin = fs.open(path);
             int b = 0;

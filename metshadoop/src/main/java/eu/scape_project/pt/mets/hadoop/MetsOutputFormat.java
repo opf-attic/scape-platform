@@ -1,7 +1,6 @@
 package eu.scape_project.pt.mets.hadoop;
 
 import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
