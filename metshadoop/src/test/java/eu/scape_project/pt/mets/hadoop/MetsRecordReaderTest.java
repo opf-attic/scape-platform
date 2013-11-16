@@ -61,7 +61,7 @@ public class MetsRecordReaderTest{
         fs.copyFromLocalFile(new Path(res.toURI()), path );
         FileStatus stat = fs.getFileStatus(path);
         genericSplit = new FileSplit(path, 0, stat.getLen(), null);
-        context = new TaskAttemptContext(conf, new TaskAttemptID());
+        context = new TestContext(conf, new TaskAttemptID());
     }
     
     @After

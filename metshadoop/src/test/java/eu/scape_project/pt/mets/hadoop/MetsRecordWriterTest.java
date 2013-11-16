@@ -86,7 +86,7 @@ public class MetsRecordWriterTest {
                 writer.write(id, dto);
             }
 
-            TaskAttemptContext context = new TaskAttemptContext(conf, new TaskAttemptID());
+            TaskAttemptContext context = new TestContext(conf, new TaskAttemptID());
             writer.close(context);
 
             InputStream in = this.getClass().getClassLoader()
@@ -141,7 +141,7 @@ public class MetsRecordWriterTest {
                 writer.write(id, dto);
             }
 
-            TaskAttemptContext context = new TaskAttemptContext(conf, new TaskAttemptID());
+            TaskAttemptContext context = new TestContext(conf, new TaskAttemptID());
             writer.close(context);
 
             InputStream in = this.getClass().getClassLoader()
