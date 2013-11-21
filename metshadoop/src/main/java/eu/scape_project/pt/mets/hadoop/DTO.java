@@ -4,8 +4,9 @@
  */
 package eu.scape_project.pt.mets.hadoop;
 
-import eu.scapeproject.model.IntellectualEntity;
-import eu.scapeproject.util.ScapeMarshaller;
+import eu.scape_project.model.IntellectualEntity;
+import eu.scape_project.pt.mets.hadoop.utils.XmlEntity;
+import eu.scape_project.util.ScapeMarshaller;
 import gov.loc.mets.MetsType;
 import java.io.*;
 import java.util.regex.Matcher;
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class DTO implements Writable, Comparable, WritableComparable {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetsRecordReader.class);
-    public static Class type = String.class;
+    public static Class type = XmlEntity.class;
 
     public static void setType(Class aClass) {
         type = aClass;
@@ -38,6 +39,10 @@ public class DTO implements Writable, Comparable, WritableComparable {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 IOUtils.copy(in, baos);
                 return baos.toString();
+            } else if(type.equals(XmlEntity.class)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                IOUtils.copy(in, baos);
+                return new XmlEntity(baos.toString());
             } else if( type.equals( MetsType.class ) )
                 return ScapeMarshaller.newInstance().deserialize(in);
             else
@@ -62,6 +67,8 @@ public class DTO implements Writable, Comparable, WritableComparable {
         
         if( type.equals( String.class )) {
             return findIDfromString((String)object);
+        } else if( type.equals( XmlEntity.class )) {
+            return ((XmlEntity)object).get("mets:mets@ID");
         } else if( type.equals( IntellectualEntity.class) ) {
             return ((IntellectualEntity)object).getIdentifier().getValue();
         } else if( type.equals(MetsType.class)) {
@@ -80,8 +87,8 @@ public class DTO implements Writable, Comparable, WritableComparable {
      * @throws IOException 
      */
     public void write(DataOutput d) throws IOException {
-        if( type.equals(String.class)) {
-            d.writeUTF((String)object);
+        if( type.equals(XmlEntity.class)) {
+            d.writeUTF(((XmlEntity)object).getContent());
         } else {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
@@ -107,6 +114,8 @@ public class DTO implements Writable, Comparable, WritableComparable {
 
         if( type.equals(String.class)) {
             object = xml;
+        } else if( type.equals(XmlEntity.class)) {
+            ((XmlEntity)object).setContent(xml);
         } else {
             ByteArrayInputStream bais = new ByteArrayInputStream( xml.getBytes() );
             object = deserialize(bais);
@@ -120,6 +129,9 @@ public class DTO implements Writable, Comparable, WritableComparable {
         else if( type.equals( IntellectualEntity.class ))
             return new Integer(getIdentifier().hashCode()).compareTo( 
                     ((IntellectualEntity)o).getIdentifier().hashCode());
+        else if( type.equals( XmlEntity.class) )
+            return new Integer(getIdentifier().hashCode()).compareTo(
+                    ((XmlEntity)o).get("mets:mets@ID").hashCode());
         else if( type.equals( String.class) )
             return new Integer(getIdentifier().hashCode()).compareTo(
                     findIDfromString((String)o).hashCode());
