@@ -30,17 +30,29 @@ public class MetsOutputFormat extends FileOutputFormat<Text, DTO> {
             TaskAttemptContext job) throws IOException, InterruptedException {
         
         Configuration conf = job.getConfiguration();
-        String extension = ".xml";
+        String extension = "xml";
+	String type = conf.get("DTO.type");
+	try{
+	    DTO.setType( Class.forName(type) );
+	} catch(ClassNotFoundException ex ){
+ 	    LOG.error(ex.getMessage());
+	}
         
-        // create output destination
-        Path file = getDefaultWorkFile(job, extension);
-        
-        LOG.debug( "output file: " + file );
-        
-        FileSystem fs = file.getFileSystem(conf);
-        FSDataOutputStream out = fs.create( file );
+	if( conf.get("mets.output.format.list").equals("true")) {
+	    // create output destination
+	    Path file = getDefaultWorkFile(job, "."+extension);
+	
+	    LOG.debug( "output file: " + file );
+	
+	    FileSystem fs = file.getFileSystem(conf);
+	    FSDataOutputStream out = fs.create( file );
 
-        return new MetsRecordWriter( out, conf.get(MetsOutputFormat.TAG) );
+	    return new MetsRecordWriter( out, conf.get(MetsOutputFormat.TAG) );
+	} else {
+	    Path file = getDefaultWorkFile(job, "");
+        return new SingleMetsRecordWriter( conf, file.toString(), extension, conf.get(MetsOutputFormat.TAG) );
+    }
+
     }
 
 }
