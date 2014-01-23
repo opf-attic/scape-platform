@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.scapeproject</groupId>
+    <groupId>eu.scape-project.pt</groupId>
     <artifactId>metshadoop</artifactId>
     <version>0.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -85,13 +85,16 @@
             </exclusions>
         </dependency-->
         <dependency>
-            <groupId>eu.scapeproject.model</groupId>
+            <!--groupId>eu.scapeproject.model</groupId>
             <artifactId>scape-platform-datamodel</artifactId>
-            <version>0.1.3-SNAPSHOT</version>
+            <version>0.1.3-SNAPSHOT</version-->
+            <groupId>eu.scape-project.model</groupId>
+            <artifactId>scape-platform-datamodel</artifactId>
+            <version>0.1.7-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>eu.scapeproject</groupId>
             <artifactId>mets-dto</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
